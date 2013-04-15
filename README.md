@@ -17,7 +17,7 @@ a directory on your `$PATH`.
 
 ### Basic Usage
 
-    ./fswatch /some/dir "echo changed" 
+    ./fswatch /some/<dir|file> "echo changed" 
 
 This would monitor `/some/dir` for any change, and run `echo changed`
 when a modification event is received.
@@ -25,7 +25,7 @@ when a modification event is received.
 In the case you want to watch multiple directories, just separate them
 with colons like:
 
-    ./fswatch /some/dir:/some/otherdir "echo changed" 
+    ./fswatch /some/<dir|file> [/some/<dir|file> ...] "echo changed" 
 
 ### Usage with rsync
 
