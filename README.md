@@ -1,7 +1,8 @@
 ## fswatch.c
 
-This is a small program using the Mac OS X FSEvents API to monitor a directory.
-When an event about any change to that directory is received, the specified
+This is a small program using the Mac OS X FSEvents API to monitor a directory
+and kernel queues to monitor individual files.
+When an event about any change to that directory or file is received, the specified
 shell command is executed by `/bin/bash`.
 
 If you're on GNU/Linux,
@@ -19,13 +20,19 @@ a directory on your `$PATH`.
 
     ./fswatch /some/<dir|file> "echo changed" 
 
-This would monitor `/some/dir` for any change, and run `echo changed`
+This would monitor `/some/<dir|file>` for any change, and run `echo changed`
 when a modification event is received.
 
 In the case you want to watch multiple directories, just separate them
 with colons like:
 
     ./fswatch /some/<dir|file> [/some/<dir|file> ...] "echo changed" 
+
+If you monitor some file and it changes then $FILE variable is a changed file name.
+You can for example use this script to detect when a less file changed and then
+process it.
+
+    ./fswatch /some/lessfile.less "lessc \$FILE > style.css"
 
 ### Usage with rsync
 
