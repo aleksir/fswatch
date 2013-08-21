@@ -18,7 +18,11 @@
  * adapted from the FSEvents api PDF
  */
 
+#define FILE_ENV_VAR "FSFILE"
+
+// environment variables
 extern char **environ;
+
 //the command to run
 char *to_run;
 
@@ -146,29 +150,6 @@ void watch_files(CFArrayRef filesToWatch) {
     }
 }
 
-/** Callback when filesystem event occured. */
-// void file_callback(struct kevent *event_data) {
-void file_callback(struct kevent *event_data) {
-    char *env[2];
-
-    int len = 5 + strlen((char *)event_data[0].udata) + 1;
-
-    env[0] = malloc(len);
-    memset(env[0], 0, len);
-
-    strcat(env[0], "FILE=");
-    strcat(env[0],(char *)(event_data[0].udata));
-
-    env[1] = NULL; // terminate with null
-
-    // printf("ENV: %s\n",env[0]);
-
-    call_with_env(env);
-
-    free(env[0]);
-}
-
-
 /** Loop the events */
 void loop() {
     if ( nevents > 0 ) {
@@ -179,13 +160,10 @@ void loop() {
         int status;
         int event_fd;
         char *path;
-        char **env;
 
         // Set the timeout to wake us every half second.
         timeout.tv_sec = 0;        // 0 seconds
         timeout.tv_nsec = 500000000;    // 500 milliseconds
-
-        env = malloc(sizeof(char *) * 1 +1); // TODO: append environ
 
         while (1) {
             int event_count = kevent(kernel_queue, events_to_monitor, nevents, event_data, nevents, &timeout);
@@ -200,7 +178,11 @@ void loop() {
             }
 
             for (i=0; i < event_count; i++) {
-                file_callback(&event_data[i]);
+
+                setenv(FILE_ENV_VAR, event_data[i].udata, 1);
+                // file_callback(&event_data[i]);
+                call_with_env(environ);
+                unsetenv(FILE_ENV_VAR);
                 // printf("Executing %d of %d, filter: %u, flags: %u, pointer: %lu, data: %ld.\n", 
                 //         i+1, event_count, event_data[i].filter, event_data[i].flags, event_data[i].ident, event_data[i].data);
 
